@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - main
-
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 jobs:
   simple_deployment_pipeline:
     runs-on: ubuntu-20.04
@@ -13,7 +14,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '16'
-      - name: npm install 
-        run: npm install  
+      - name: npm install
+        run: npm install
       - name: lint
         run: npm run eslint
+      - name: Deploy remote
+        run: flyctl deploy --remote-only
