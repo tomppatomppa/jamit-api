@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "node index.js",
+    "eslint": "eslint './**/*.{js,jsx}'",
     "test": "echo \"Error: no  specified\" && exit 1"
   },
   "author": "",
