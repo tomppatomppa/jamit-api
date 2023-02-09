@@ -9,5 +9,9 @@
     "test": "echo \"Error: no  specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.33.0",
+    "eslint-plugin-react": "^7.32.2"
+  }
 }
