@@ -1,10 +1,31 @@
 const express = require('express')
-require('dotenv').config()
-
 const app = express()
 
-app.get('/', (req, res) => {
-  res.status(200).send('Hello World! Test')
+const { connectToDatabase } = require('./util/db')
+
+const { PORT } = require('./util/config')
+const { Event } = require('./models/index')
+
+app.use(express.json())
+app.get('/', async (req, res) => {
+  const all = await Event.findAll()
+
+  res.status(200).send(all)
 })
-app.listen(process.env.PORT, () => console.log(process.env.PORT))
-module.exports = app
+
+app.post('/', async (req, res) => {
+  try {
+    const createdEvent = await Event.create(req.body)
+    res.json(createdEvent)
+  } catch (e) {
+    res.json(e)
+  }
+})
+const start = async () => {
+  await connectToDatabase()
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
+  })
+}
+
+start()
