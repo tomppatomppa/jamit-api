@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon index.js",
     "eslint": "eslint './**/*.{js,jsx}'",
-    "test": "jest"
+    "test": "jest",
+    "deploy": "flyctl deploy"
   },
   "author": "",
   "license": "ISC",
