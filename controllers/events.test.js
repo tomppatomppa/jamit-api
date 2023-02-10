@@ -32,6 +32,14 @@ describe('GET /api/events', () => {
         ])
       )
     })
+    test('test endpoint for fetching a single event', async () => {
+      const response = await api.get(`/api/events/999999`) //Test data id is 999999
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          post_url: data.post_url,
+        })
+      )
+    })
   })
 
   afterAll(async () => {
