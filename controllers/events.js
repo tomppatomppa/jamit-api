@@ -8,7 +8,6 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   const event = await Event.findByPk(req.params.id)
-
   return res.status(200).json(event)
 })
 router.post('/', async (req, res) => {
@@ -16,4 +15,12 @@ router.post('/', async (req, res) => {
   res.status(200).json(createdEvent)
 })
 
+router.put('/:id', async (req, res) => {
+  const event = await Event.findByPk(req.params.id)
+  const { name } = req.body
+  event.name = name
+  await event.save()
+
+  res.json(event)
+})
 module.exports = router

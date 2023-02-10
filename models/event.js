@@ -16,7 +16,7 @@ Event.init(
       allowNull: false,
     },
     shares: {
-      type: DataTypes.TEXT,
+      type: DataTypes.INTEGER,
     },
     reactions: {
       type: DataTypes.JSON,
@@ -27,7 +27,7 @@ Event.init(
       defaultValue: 0,
     },
     comments: {
-      type: DataTypes.TEXT,
+      type: DataTypes.INTEGER,
     },
     content: {
       type: DataTypes.TEXT,
@@ -35,7 +35,6 @@ Event.init(
     },
     posted_on: {
       type: DataTypes.DATE,
-
       allowNull: false,
     },
     video: {
