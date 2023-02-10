@@ -1,17 +1,19 @@
-const route = require('express').Router()
+const router = require('express').Router()
 const { Event } = require('../models/index')
 
-route.get('/', async (req, res) => {
+router.get('/', async (req, res) => {
   const allEvents = await Event.findAll()
   res.json(allEvents)
 })
 
-route.post('/', async (req, res) => {
+router.get('/:id', async (req, res) => {
+  const event = await Event.findByPk(req.params.id)
+
+  return res.status(200).json(event)
+})
+router.post('/', async (req, res) => {
   const createdEvent = await Event.create(req.body)
-  console.log(createdEvent.errors)
-  if (!createdEvent) {
-    res.status(400).json({ error: createdEvent })
-  }
   res.status(200).json(createdEvent)
 })
-module.exports = route
+
+module.exports = router
