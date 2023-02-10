@@ -12,7 +12,6 @@ app.use('/api/events', eventsRouter)
 app.use(errorHandler)
 
 app.get('/', async (req, res) => {
-  // const all = await Event.findAll()
   res.status(200).json('This is the api for the app jamit')
 })
 
