@@ -1,6 +1,6 @@
 const { connectToDatabase } = require('./util/db')
-
 const app = require('./app')
+
 const { PORT } = require('./util/config')
 
 const start = async () => {

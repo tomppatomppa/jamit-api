@@ -8,6 +8,12 @@ const data = require('../util/data.json')
 
 describe('GET /api/events', () => {
   beforeAll(async () => {
+    await Event.destroy({
+      name: 'Muusikkojen liitto',
+      where: {
+        post_url: data.post_url,
+      },
+    })
     await Event.create(data) //Created event from test data
   })
 

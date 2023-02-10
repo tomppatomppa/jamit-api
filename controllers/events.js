@@ -6,4 +6,12 @@ route.get('/', async (req, res) => {
   res.json(allEvents)
 })
 
+route.post('/', async (req, res) => {
+  const createdEvent = await Event.create(req.body)
+  console.log(createdEvent.errors)
+  if (!createdEvent) {
+    res.status(400).json({ error: createdEvent })
+  }
+  res.status(200).json(createdEvent)
+})
 module.exports = route
