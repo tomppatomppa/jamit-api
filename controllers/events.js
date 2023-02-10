@@ -23,4 +23,14 @@ router.put('/:id', async (req, res) => {
 
   res.json(event)
 })
+
+router.delete('/:id', async (req, res) => {
+  const event = await Event.findByPk(req.params.id)
+  if (!event) {
+    res.status(404).json(`Event id ${req.params.id} not found`)
+    return
+  }
+  await event.destroy()
+  res.status(200).json('Event has been deleted')
+})
 module.exports = router
