@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon index.js",
     "eslint": "eslint './**/*.{js,jsx}'",
-    "test": "jest",
+    "test": "NODE_ENV=test jest --runInBand",
     "deploy": "flyctl deploy"
   },
   "author": "",
@@ -23,5 +23,9 @@
     "pg": "^8.9.0",
     "sequelize": "^6.28.0",
     "supertest": "^6.3.3"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "globalTeardown": "./teardown.js"
   }
 }
