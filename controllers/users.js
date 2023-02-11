@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt')
 const router = require('express').Router()
 const User = require('../models/user')
 
+const { userFromToken } = require('../util/middleware')
+
 router.get('/', async (req, res) => {
   const allUsers = await User.findAll()
   res.status(200).json(allUsers)
@@ -16,7 +18,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const { username, password } = req.body
   if (!username || !password) {
-    return res.status(401).json({ error: 'Invalid payload' })
+    return res.status(401).json({ error: 'Username or Password missing' })
   }
 
   const saltRounds = 10
@@ -29,4 +31,12 @@ router.post('/', async (req, res) => {
   res.status(200).json(createdUser)
 })
 
+router.delete('/:id', userFromToken, async (req, res) => {
+  await User.destroy({
+    where: {
+      id: req.user.id,
+    },
+  })
+  res.status(201).json(`Succesfully deleted user`)
+})
 module.exports = router

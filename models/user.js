@@ -1,17 +1,14 @@
 const { Model, DataTypes } = require('sequelize')
 
 const { sequelize } = require('../util/db')
-//const PROTECTED_ATTRIBUTES = ['passwordHash']
 
 class User extends Model {
-  // toJSON() {
-  //   // hide protected fields
-  //   let attributes = Object.assign({}, this.get())
-  //   for (let a of PROTECTED_ATTRIBUTES) {
-  //     delete attributes[a]
-  //   }
-  //   return attributes
-  // }
+  toJSON() {
+    // exclude passwordHash by default
+    let attributes = Object.assign({}, this.get())
+    delete attributes.passwordHash
+    return attributes
+  }
 }
 
 User.init(
@@ -36,9 +33,6 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
-      // get() {
-      //   return undefined
-      // },
     },
     disabled: {
       type: DataTypes.BOOLEAN,
@@ -50,6 +44,7 @@ User.init(
       allowNull: false,
     },
   },
+
   {
     sequelize,
     underscored: true,
