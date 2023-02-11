@@ -25,9 +25,6 @@ jobs:
       - name: start local
         run: npm run start-prod
       - name: tests
-        with:
-          run: npm run test
-          wait-on: http://localhost:3000
-
+        run: npm run test
       - name: Deploy remote
         run: flyctl deploy --remote-only
