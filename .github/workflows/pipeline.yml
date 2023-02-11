@@ -20,9 +20,14 @@ jobs:
         run: npm install
       - name: lint
         run: npm run eslint
-      - name: db proxy
-        run: flyctl proxy 5432 -a jamit-api-db
-      - name: tests
+      - name: Start db proxy
+        run: flyctl proxy 5432 -a jamit-api-db --background
+        id: db_proxy
+      - name: Wait for db proxy to start
+        run: sleep 5
+      - name: Run tests
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npm run test
       - name: Deploy remote
         run: flyctl deploy --remote-only
