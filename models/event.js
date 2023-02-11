@@ -34,7 +34,7 @@ Event.init(
       allowNull: false,
     },
     posted_on: {
-      type: DataTypes.DATE,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     video: {
