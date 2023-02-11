@@ -105,7 +105,7 @@ describe('POST /api/events', () => {
     await Event.destroy({
       name: 'Muusikkojen liitto',
       where: {
-        post_url: data.post_url, //
+        post_url: data.post_url, ///
       },
     })
   })
