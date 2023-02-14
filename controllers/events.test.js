@@ -60,61 +60,94 @@ describe('GET /api/events', () => {
   })
 })
 
-// describe('POST /api/events', () => {
-//   beforeAll(async () => {
-//     await Event.destroy({
-//       name: 'Muusikkojen liitto',
-//       where: {
-//         post_url: data.post_url,
-//       },
-//     })
-//   })
-//   describe('Adding new event', () => {
-//     test('endpoint returns the created event', async () => {
-//       const event = await api.post('/api/events').send(data)
-//       // eslint-disable-next-line no-unused-vars
-//       const { updatedAt, createdAt, ...eventWithoutTimestamps } = event.body
-//       expect(eventWithoutTimestamps).toEqual(
-//         expect.objectContaining({
-//           ...data,
-//         })
-//       )
-//     })
-//     test('post request is missing mandatory NAME field', async () => {
-//       const event = await api.post('/api/events').send(invalidEvent[0])
+describe('POST /api/events', () => {
+  beforeAll(async () => {
+    await Event.destroy({
+      name: 'Muusikkojen liitto',
+      where: {
+        post_url: data.post_url,
+      },
+    })
+    const passwordHash = await bcrypt.hash(validUser.password, 10)
+    await User.create({
+      username: validUser.username,
+      passwordHash: passwordHash,
+    })
+  })
+  describe('Adding new event', () => {
+    test('endpoint returns the created event', async () => {
+      const userLogin = await api.post('/api/login').send(validUser)
+      const result = await api
+        .post(`/api/events`)
+        .send(data)
+        .set('Authorization', `Bearer ${userLogin.body.token}`)
 
-//       expect(event.body).toEqual({ error: ['event.name cannot be null'] })
-//     })
-//     test('post request is missing mandatory CONTENT field', async () => {
-//       const event = await api.post('/api/events').send(invalidEvent[1])
+      // eslint-disable-next-line no-unused-vars
+      const { updatedAt, createdAt, ...eventWithoutTimestamps } = result.body
+      expect(eventWithoutTimestamps).toEqual(
+        expect.objectContaining({
+          ...data,
+        })
+      )
+    })
+    test('created event with duplicate id', async () => {
+      const userLogin = await api.post('/api/login').send(validUser)
+      const result = await api
+        .post(`/api/events`)
+        .send(data)
+        .set('Authorization', `Bearer ${userLogin.body.token}`)
 
-//       expect(event.body).toEqual({ error: ['event.content cannot be null'] })
-//     })
-//     test('post request is missing mandatory POSTED_ON field', async () => {
-//       const event = await api.post('/api/events').send(invalidEvent[2])
+      expect(result.body.error).toEqual(['id must be unique'])
 
-//       expect(event.body).toEqual({ error: ['event.posted_on cannot be null'] })
-//     })
+      // eslint-disable-next-line no-unused-vars
+    })
+    test('post request is missing mandatory NAME field', async () => {
+      const userLogin = await api.post('/api/login').send(validUser)
+      const result = await api
+        .post(`/api/events`)
+        .send(invalidEvent[0])
+        .set('Authorization', `Bearer ${userLogin.body.token}`)
 
-//     test('Adding an post that has the same post_url field', async () => {
-//       await api.post('/api/events').send(data)
-//       const eventWithDuplicateUrl = await api
-//         .post('/api/events')
-//         .send({ ...data, id: 8888 })
+      expect(result.body.error).toEqual(['event.name cannot be null'])
+    })
+    test('post request is missing mandatory CONTENT field', async () => {
+      const userLogin = await api.post('/api/login').send(validUser)
+      const result = await api
+        .post(`/api/events`)
+        .send(invalidEvent[1])
+        .set('Authorization', `Bearer ${userLogin.body.token}`)
 
-//       expect(eventWithDuplicateUrl.body).toEqual({
-//         error: ['post_url must be unique'],
-//       })
-//     })
-//   })
+      expect(result.body.error).toEqual(['event.content cannot be null'])
+    })
+    test('post request is missing mandatory POSTED_ON field', async () => {
+      const userLogin = await api.post('/api/login').send(validUser)
+      const result = await api
+        .post(`/api/events`)
+        .send(invalidEvent[2])
+        .set('Authorization', `Bearer ${userLogin.body.token}`)
 
-//   afterAll(async () => {
-//     await Event.destroy({
-//       name: 'Muusikkojen liitto',
-//       where: {
-//         post_url: data.post_url, /////
-//       },
-//     })
-//     await User.destroy({ where: { username: 'testuser@hotmail.com' } })
-//   })
-// })
+      expect(result.body.error).toEqual(['event.posted_on cannot be null'])
+    })
+
+    // test('Adding an post that has the same post_url field', async () => {
+    //   await api.post('/api/events').send(data)
+    //   const eventWithDuplicateUrl = await api
+    //     .post('/api/events')
+    //     .send({ ...data, id: 8888 })
+
+    //   expect(eventWithDuplicateUrl.body).toEqual({
+    //     error: ['post_url must be unique'],
+    //   })
+    // })
+  })
+
+  afterAll(async () => {
+    await Event.destroy({
+      name: 'Muusikkojen liitto',
+      where: {
+        post_url: data.post_url,
+      },
+    })
+    await User.destroy({ where: { username: 'testuser@hotmail.com' } })
+  })
+})

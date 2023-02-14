@@ -3,7 +3,7 @@ const supertest = require('supertest')
 const app = require('../app')
 
 const { User } = require('../models/index')
-const { describe } = require('../models/session')
+
 const api = supertest(app)
 
 const { validUser, invalidUser } = require('../__tests__/data/index')
@@ -48,20 +48,51 @@ describe('POST /api/users', () => {
     })
   })
 })
-describe('DELETE /api/users', async () => {
+
+describe('DELETE /api/users', () => {
   beforeAll(async () => {
     await User.destroy({
       where: {
         username: validUser.username,
       },
     })
-    await api.post('/api/users').send(validUser)
   })
 
-  const user = await api.post('/api/login').send(validUser)
   describe('deleting users', () => {
     test('deleting user with valid token', async () => {
-      const result = await api.delete('/api/users').send()
+      await api.post('/api/users').send(validUser)
+      const userLogin = await api.post('/api/login').send(validUser)
+      // expect(userLogin.body).toEqual({ //TODO: username not returned with token
+      //   token: 'something',
+      //   username: validUser.username,
+      // })
+      const result = await api
+        .delete(`/api/users`)
+        .send({ username: validUser.username })
+        .set('Authorization', `Bearer ${userLogin.body.token}`)
+
+      expect(result.body).toEqual('Succesfully deleted user')
+    })
+    test('deleting user who is not the owner of token', async () => {
+      await api.post('/api/users').send(validUser)
+      const userLogin = await api.post('/api/login').send(validUser)
+
+      const result = await api
+        .delete(`/api/users`)
+        .send({ username: 'notMyUsername@hotmail.com' })
+        .set('Authorization', `Bearer ${userLogin.body.token}`)
+
+      expect(result.body.error).toEqual('No permission to delete this user')
+    })
+    test('user has no valid session', async () => {
+      await api.post('/api/users').send(validUser)
+
+      const result = await api
+        .delete(`/api/users`)
+        .send({ username: validUser.username })
+        .set('Authorization', `Bearer ${'1234'}`)
+
+      expect(result.body.error).toEqual('no valid session')
     })
   })
 

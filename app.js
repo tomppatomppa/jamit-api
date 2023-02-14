@@ -13,6 +13,7 @@ app.use(express.json())
 app.use('/api/events', eventsRouter)
 app.use('/api/login', loginRouter)
 app.use('/api/users', userRouter)
+
 app.use(errorHandler)
 
 app.get('/', async (req, res) => {

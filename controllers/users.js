@@ -31,7 +31,11 @@ router.post('/', async (req, res) => {
   res.status(200).json(createdUser)
 })
 
-router.delete('/:id', userFromToken, async (req, res) => {
+router.delete('/', userFromToken, async (req, res) => {
+  console.log(req.user.username, req.body.username)
+  if (req.user.username !== req.body.username) {
+    return res.status(403).json({ error: 'No permission to delete this user' })
+  }
   await User.destroy({
     where: {
       id: req.user.id,

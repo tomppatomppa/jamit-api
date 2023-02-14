@@ -13,7 +13,10 @@ router.get('/:id', async (req, res) => {
   return res.status(200).json(event)
 })
 router.post('/', userFromToken, async (req, res) => {
-  const createdEvent = await Event.create(req.body)
+  const createdEvent = await Event.create({
+    ...req.body,
+    userId: req.user.id,
+  })
   res.status(200).json(createdEvent)
 })
 
