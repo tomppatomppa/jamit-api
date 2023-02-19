@@ -2,7 +2,14 @@ const { Model, DataTypes } = require('sequelize')
 
 const { sequelize } = require('../util/db')
 
-class Event extends Model {}
+class Event extends Model {
+  toJSON() {
+    // exclude passwordHash by default
+    let attributes = Object.assign({}, this.get())
+    delete attributes.location.crs
+    return attributes
+  }
+}
 
 Event.init(
   {
@@ -47,6 +54,14 @@ Event.init(
       type: DataTypes.TEXT,
       allowNull: false,
       unique: true,
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: { model: 'users', key: 'id' },
+    },
+    location: {
+      type: DataTypes.GEOMETRY('POINT'),
     },
   },
   {

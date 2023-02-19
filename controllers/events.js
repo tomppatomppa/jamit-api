@@ -12,7 +12,9 @@ router.get('/:id', async (req, res) => {
   const event = await Event.findByPk(req.params.id)
   return res.status(200).json(event)
 })
+
 router.post('/', userFromToken, async (req, res) => {
+  console.log('USER ID', req.user.id)
   const createdEvent = await Event.create({
     ...req.body,
     userId: req.user.id,

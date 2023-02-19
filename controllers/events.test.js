@@ -10,7 +10,7 @@ const { invalidEvent, validUser } = require('../__tests__/data/index')
 describe('GET /api/events', () => {
   beforeAll(async () => {
     const passwordHash = await bcrypt.hash(validUser.password, 10)
-    await User.create({
+    const createdUser = await User.create({
       username: validUser.username,
       passwordHash: passwordHash,
     })
@@ -20,7 +20,7 @@ describe('GET /api/events', () => {
         post_url: data.post_url,
       },
     })
-    await Event.create(data) //Created event from test data
+    await Event.create({ ...data, userId: createdUser.id }) //Created event from test data
   })
 
   describe('correct return type and data', () => {
@@ -83,7 +83,8 @@ describe('POST /api/events', () => {
         .set('Authorization', `Bearer ${userLogin.body.token}`)
 
       // eslint-disable-next-line no-unused-vars
-      const { updatedAt, createdAt, ...eventWithoutTimestamps } = result.body
+      const { updatedAt, createdAt, userId, ...eventWithoutTimestamps } =
+        result.body
       expect(eventWithoutTimestamps).toEqual(
         expect.objectContaining({
           ...data,
