@@ -61,7 +61,7 @@ Event.init(
       references: { model: 'users', key: 'id' },
     },
     location: {
-      type: DataTypes.GEOMETRY('POINT'),
+      type: DataTypes.GEOMETRY('POINT', 4326),
     },
   },
   {

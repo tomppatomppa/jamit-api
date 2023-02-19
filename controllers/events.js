@@ -1,9 +1,32 @@
 const router = require('express').Router()
 const { Event } = require('../models/index')
+const { QueryTypes } = require('sequelize')
+const { sequelize } = require('../util/db')
 
 const { userFromToken } = require('../util/middleware')
 
+/**
+ * The ST_DWithin function checks if the distance between the two geometries is less than or equal to the specified distance,
+ * so it will return all events that are 50 meters away or less if you set the radius to 49 meters.
+ * This is because the function calculates the distance between the centroids of the geometries,
+ * which can be different from the actual distance between the closest points on the geometries.
+ */
 router.get('/', async (req, res) => {
+  if (req.body.search) {
+    const result = await sequelize.query(
+      `SELECT * FROM events WHERE ST_DWithin(
+        ST_Transform(location, 3857), 
+        ST_Transform(ST_SetSRID(ST_MakePoint(60.0, 25.0), 4326), 3857), 
+       ${req.body.search.radius}
+      )`,
+      {
+        type: QueryTypes.SELECT,
+      }
+    )
+
+    return res.json(result.length)
+  }
+
   const allEvents = await Event.findAll()
   res.json(allEvents)
 })
