@@ -160,17 +160,6 @@ describe('POST /api/events', () => {
       expect(result.body.error).toEqual(['event.posted_on cannot be null'])
     })
 
-    // test('Adding an post that has the same post_url field', async () => {
-    //   await api.post('/api/events').send(data)
-    //   const eventWithDuplicateUrl = await api
-    //     .post('/api/events')
-    //     .send({ ...data, id: 8888 })
-
-    //   expect(eventWithDuplicateUrl.body).toEqual({
-    //     error: ['post_url must be unique'],
-    //   })
-    // })
-
     describe('add events with 10 m distance to each other', () => {
       let dummyData = []
 
@@ -182,9 +171,11 @@ describe('POST /api/events', () => {
         })
         const userLogin = await api.post('/api/login').send(validUser)
 
+        const latitude = 60
+        const distanceInMeters = 10
         // create 10 dummy objects
         for (let i = 0; i < 10; i++) {
-          new_latitude = 60 + (10 * i + 1) / 111111
+          const new_latitude = latitude + (distanceInMeters * i + 1) / 111111 //Each degree of latitude equals roughly 111111 meters
           const location = {
             type: 'Point',
             coordinates: [new_latitude, 25],

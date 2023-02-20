@@ -1,6 +1,6 @@
 const router = require('express').Router()
 const { Event } = require('../models/index')
-const { QueryTypes } = require('sequelize')
+
 const { sequelize } = require('../util/db')
 
 const { userFromToken } = require('../util/middleware')
@@ -13,18 +13,11 @@ const { userFromToken } = require('../util/middleware')
  */
 router.get('/', async (req, res) => {
   if (req.body.search) {
-    const { radius, origin } = req.body.search
+    const { xmin, ymin, xmax, ymax } = req.body.search
     const result = await sequelize.query(
-      `SELECT * FROM events WHERE ST_DWithin(
-        ST_Transform(location, 3857), 
-        ST_Transform(ST_SetSRID(ST_MakePoint(${origin}), 4326), 3857), 
-       ${radius}
-      )`,
-      {
-        type: QueryTypes.SELECT,
-      }
+      `SELECT * FROM events WHERE ST_Intersects(location, ST_MakeEnvelope(${xmin},${ymin}, ${xmax}, ${ymax}, 4326))`
     )
-    return res.json(result.length)
+    return res.status(200).json(result[0])
   }
 
   const allEvents = await Event.findAll()

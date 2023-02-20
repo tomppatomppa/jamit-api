@@ -6,7 +6,7 @@ class Event extends Model {
   toJSON() {
     // exclude passwordHash by default
     let attributes = Object.assign({}, this.get())
-    delete attributes.location.crs
+    //delete attributes.location.crs
     return attributes
   }
 }
