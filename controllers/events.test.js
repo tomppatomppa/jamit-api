@@ -193,7 +193,7 @@ describe('POST /api/events', () => {
 
           dummyData.push(result.body)
         }
-      }) //74.52482596141493, 19.31813494285226
+      })
       test('expect api to return all added events inside the rectangle', async () => {
         const result = await api.get('/api/events').send({
           search: {
@@ -205,10 +205,21 @@ describe('POST /api/events', () => {
         })
         expect(result.body.length).toEqual(10)
       })
+      test('Expect event id to be exluded from query', async () => {
+        const result = await api.get('/api/events').send({
+          search: {
+            xmin: 74.35626502890085,
+            ymin: 18.73108873282493,
+            xmax: 74.52482596141493,
+            ymax: 19.31813494285226,
+            excludedIds: [dummyData[0].id],
+          },
+        })
+        expect(result.body.length).toEqual(9)
+      })
       test('expect api to return an empty array', async () => {
         const result = await api.get('/api/events').send({
           search: {
-            //74.33722591053454, 19.290361229480073
             xmin: 74.23025396628665,
             ymin: 18.686767959396114,
             xmax: 74.33722591053454,
