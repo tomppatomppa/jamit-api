@@ -213,14 +213,14 @@ describe('POST /api/events', () => {
       test('expect to return all events inside a 10 m radius', async () => {
         const result = await api
           .get('/api/events')
-          .send({ search: { radius: 10 } })
+          .send({ search: { origin: [60, 25], radius: 10 } })
         expect(result.body).toEqual(1)
       })
 
       test('expect to return all events inside a 50 m radius', async () => {
         const result = await api
           .get('/api/events')
-          .send({ search: { radius: 50 } })
+          .send({ search: { origin: [60, 25], radius: 50 } })
         expect(result.body).toEqual(5)
       })
     })

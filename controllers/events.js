@@ -13,17 +13,17 @@ const { userFromToken } = require('../util/middleware')
  */
 router.get('/', async (req, res) => {
   if (req.body.search) {
+    const { radius, origin } = req.body.search
     const result = await sequelize.query(
       `SELECT * FROM events WHERE ST_DWithin(
         ST_Transform(location, 3857), 
-        ST_Transform(ST_SetSRID(ST_MakePoint(60.0, 25.0), 4326), 3857), 
-       ${req.body.search.radius}
+        ST_Transform(ST_SetSRID(ST_MakePoint(${origin}), 4326), 3857), 
+       ${radius}
       )`,
       {
         type: QueryTypes.SELECT,
       }
     )
-
     return res.json(result.length)
   }
 
