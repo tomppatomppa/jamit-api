@@ -104,6 +104,7 @@ describe('POST /api/events', () => {
       passwordHash: passwordHash,
     })
   })
+
   describe('Adding new event', () => {
     test('endpoint returns the created event', async () => {
       const userLogin = await api.post('/api/login').send(validUser)
@@ -171,14 +172,14 @@ describe('POST /api/events', () => {
         })
         const userLogin = await api.post('/api/login').send(validUser)
 
-        const latitude = 60
-        const distanceInMeters = 10
+        const latitude = 74.45132200544495
+        const meters = 10
         // create 10 dummy objects
         for (let i = 0; i < 10; i++) {
-          const new_latitude = latitude + (distanceInMeters * i + 1) / 111111 //Each degree of latitude equals roughly 111111 meters
+          const new_latitude = latitude + (meters * i + 1) / 111111 //Each degree of latitude equals roughly 111111 meters
           const location = {
             type: 'Point',
-            coordinates: [new_latitude, 25],
+            coordinates: [new_latitude, 19.027280232194727],
           }
           // POST the data to your API endpoint and add it to the array
           const result = await api
@@ -192,31 +193,32 @@ describe('POST /api/events', () => {
 
           dummyData.push(result.body)
         }
+      }) //74.52482596141493, 19.31813494285226
+      test('expect api to return all added events inside the rectangle', async () => {
+        const result = await api.get('/api/events').send({
+          search: {
+            xmin: 74.35626502890085,
+            ymin: 18.73108873282493,
+            xmax: 74.52482596141493,
+            ymax: 19.31813494285226,
+          },
+        })
+        expect(result.body.length).toEqual(10)
       })
-      test('expect api to return all added events', async () => {
-        const result = await api.get('/api/events')
-        expect(result.body.length).toEqual(dummyData.length)
-        for (let i = 0; i < 10; i++) {
-          expect(result.body[i]).toEqual(dummyData[i])
-        }
-      })
-
-      test('expect to return all events inside a 10 m radius', async () => {
-        const result = await api
-          .get('/api/events')
-          .send({ search: { origin: [60, 25], radius: 10 } })
-        expect(result.body).toEqual(1)
-      })
-
-      test('expect to return all events inside a 50 m radius', async () => {
-        const result = await api
-          .get('/api/events')
-          .send({ search: { origin: [60, 25], radius: 50 } })
-        expect(result.body).toEqual(5)
+      test('expect api to return an empty array', async () => {
+        const result = await api.get('/api/events').send({
+          search: {
+            //74.33722591053454, 19.290361229480073
+            xmin: 74.23025396628665,
+            ymin: 18.686767959396114,
+            xmax: 74.33722591053454,
+            ymax: 19.290361229480073,
+          },
+        })
+        expect(result.body.length).toEqual(0)
       })
     })
   })
-
   afterAll(async () => {
     await Event.destroy({
       name: 'Muusikkojen liitto',
