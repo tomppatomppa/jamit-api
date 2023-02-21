@@ -22,10 +22,10 @@ jobs:
       - name: Set up flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
         with:
-          args: auth login --access-token ${{ secrets.FLY_ACCESS_TOKEN }}
+          args: auth login --access-token ${{ secrets.FLY_API_TOKEN }}
 
       - name: Open database proxy
-        run: flyctl postgres proxy start -a my-app -d my-database --private
+        run: flyctl postgres proxy start -a jamit-api -d jamit-api-db --private
 
       - name: Run tests
         run: npm test
