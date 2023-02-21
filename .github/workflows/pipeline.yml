@@ -25,7 +25,7 @@ jobs:
           args: auth login --access-token ${{ secrets.FLY_API_TOKEN }}
 
       - name: Open database proxy
-        run: flyctl postgres proxy start -a jamit-api -d jamit-api-db --private
+        run: flyctl proxy 5432 -a jamit-api-db
 
       - name: Run tests
         run: npm test

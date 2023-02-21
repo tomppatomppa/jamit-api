@@ -1,11 +1,7 @@
 const { Sequelize } = require('sequelize')
 const { DATABASE_URL } = require('./config')
 
-const sequelize = new Sequelize(DATABASE_URL, {
-  host: 'jamit-api-db',
-  port: 5432,
-  dialect: 'postgres',
-})
+const sequelize = new Sequelize(DATABASE_URL, {})
 
 const connectToDatabase = async () => {
   try {
