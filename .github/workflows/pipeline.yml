@@ -11,7 +11,6 @@ jobs:
   simple_deployment_pipeline:
     runs-on: ubuntu-20.04
     steps:
-      - uses: superfly/flyctl-actions/setup-flyctl@master
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
@@ -20,5 +19,15 @@ jobs:
         run: npm install
       - name: lint
         run: npm run eslint
-      - name: Deploy remote
-        run: flyctl deploy --remote-only
+      - name: Set up flyctl
+        uses: superfly/flyctl-actions@v1
+        with:
+          args: auth login --access-token ${{ secrets.FLY_ACCESS_TOKEN }}
+
+      - name: Open database proxy
+        run: flyctl postgres proxy start -a my-app -d my-database --private
+
+      - name: Run tests
+        run: npm test
+      # - name: Deploy remote
+      #   run: flyctl deploy --remote-only

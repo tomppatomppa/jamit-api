@@ -33,6 +33,12 @@ describe('POST /api/users', () => {
       const user = await api.post('/api/users').send({})
       expect(user.body.error).toEqual('Username or Password missing')
     })
+    test('Creating a user with fields as empty strings', async () => {
+      const user = await api
+        .post('/api/users')
+        .send({ username: '', password: '' })
+      expect(user.body.error).toEqual('Username or Password missing')
+    })
     test('Create user that already exists', async () => {
       await api.post('/api/users').send(validUser)
       const duplicateUser = await api.post('/api/users').send(validUser)
@@ -73,7 +79,7 @@ describe('DELETE /api/users', () => {
 
       expect(result.body).toEqual('Succesfully deleted user')
     })
-    test('deleting user who is not the owner of token', async () => {
+    test('deleting user who is not the owner of the username', async () => {
       await api.post('/api/users').send(validUser)
       const userLogin = await api.post('/api/login').send(validUser)
 
@@ -84,7 +90,7 @@ describe('DELETE /api/users', () => {
 
       expect(result.body.error).toEqual('No permission to delete this user')
     })
-    test('user has no valid session', async () => {
+    test('user sends invalid token', async () => {
       await api.post('/api/users').send(validUser)
 
       const result = await api
