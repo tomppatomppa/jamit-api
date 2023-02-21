@@ -20,7 +20,7 @@ jobs:
       - name: lint
         run: npm run eslint
       - name: Set up flyctl
-        uses: superfly/flyctl-actions@v1
+        uses: superfly/flyctl-actions/setup-flyctl@master
         with:
           args: auth login --access-token ${{ secrets.FLY_ACCESS_TOKEN }}
 
