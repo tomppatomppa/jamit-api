@@ -1,9 +1,11 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
+
 const supertest = require('supertest')
 const app = require('../app')
 const bcrypt = require('bcrypt')
 const { Event, User } = require('../models/index')
+
 const api = supertest(app)
 
 const user = { username: 'testuser@hotmail.com', password: 'secret' }
@@ -44,6 +46,7 @@ describe('GET /api/events', () => {
       username: user.username,
       passwordHash: passwordHash,
     })
+
     await Event.destroy({
       name: event.name,
       where: {

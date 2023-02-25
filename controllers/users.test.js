@@ -25,6 +25,10 @@ describe('POST /api/users', () => {
       const user = await api.post('/api/users').send(invalidUser[0])
       expect(user.body.error).toEqual('Username or Password missing')
     })
+    test('Creating a user with too short password', async () => {
+      const user = await api.post('/api/users').send(invalidUser[2])
+      expect(user.body.error).toEqual('Password must be at least 8 characters')
+    })
     test('Creating a user without username', async () => {
       const user = await api.post('/api/users').send(invalidUser[1])
       expect(user.body.error).toEqual('Username or Password missing')

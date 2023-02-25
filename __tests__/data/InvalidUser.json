@@ -4,5 +4,9 @@
   },
   {
     "password": "nousername"
+  },
+  {
+    "username": "invaliduserTooShortPassword@hotmail.com",
+    "password": "short"
   }
 ]

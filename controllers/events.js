@@ -15,11 +15,12 @@ router.get('/', async (req, res) => {
       //For accurate results, 4326 has to match the coordinate system used in your model
       `SELECT * FROM events WHERE ST_Intersects(location, ST_MakeEnvelope(${xmin},${ymin},${xmax},${ymax}, 4326)) ${exludeQuery}`
     )
+    console.log(eventsInsideArea[0])
     return res.status(200).json(eventsInsideArea[0])
   }
 
   const allEvents = await Event.findAll()
-  res.json(allEvents)
+  return res.json(allEvents)
 })
 
 router.get('/:id', async (req, res) => {
@@ -28,7 +29,6 @@ router.get('/:id', async (req, res) => {
 })
 
 router.post('/', userFromToken, async (req, res) => {
-  console.log('USER ID', req.user.id)
   const createdEvent = await Event.create({
     ...req.body,
     userId: req.user.id,

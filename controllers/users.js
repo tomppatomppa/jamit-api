@@ -20,6 +20,11 @@ router.post('/', async (req, res) => {
   if (!username || !password) {
     return res.status(401).json({ error: 'Username or Password missing' })
   }
+  if (password.length < 8) {
+    return res
+      .status(401)
+      .json({ error: 'Password must be at least 8 characters' })
+  }
 
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(password, saltRounds)

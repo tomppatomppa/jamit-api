@@ -45,7 +45,7 @@ router.post('/', async (req, response) => {
   response.status(200).send({ token, username: user.username })
 })
 
-router.delete('/logout', userFromToken, async (req, res) => {
+router.delete('/', userFromToken, async (req, res) => {
   await Session.destroy({
     where: {
       userId: req.user.id,
