@@ -9,14 +9,7 @@ router.get('/', async (req, res) => {
   if (Object.keys(req.query).length !== 0) {
     //query options
     //TODO: check for valid cooridnate values
-    const {
-      xmin,
-      ymin,
-      xmax,
-      ymax,
-      excludedIds = '',
-      filterByDate = '',
-    } = req.query
+    const { xmin, ymin, xmax, ymax, excludedIds = '' } = req.query
 
     const exludeQuery = excludedIds ? `AND id NOT IN (${excludedIds})` : ''
     const eventsInsideArea = await sequelize.query(
