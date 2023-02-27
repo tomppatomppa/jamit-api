@@ -5,6 +5,7 @@ const app = require('../app')
 const bcrypt = require('bcrypt')
 const { Event, User, Session } = require('../models/index')
 const api = supertest(app)
+
 const user = {
   id: 999999999,
   username: 'testuser@hotmail.com',
