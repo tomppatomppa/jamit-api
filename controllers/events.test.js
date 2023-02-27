@@ -1,16 +1,17 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
-
 const supertest = require('supertest')
 const app = require('../app')
 const bcrypt = require('bcrypt')
-const { Event, User } = require('../models/index')
-
+const { Event, User, Session } = require('../models/index')
 const api = supertest(app)
-
-const user = { username: 'testuser@hotmail.com', password: 'secret' }
-
+const user = {
+  id: 999999999,
+  username: 'testuser@hotmail.com',
+  password: 'secretPassword',
+}
 const event = {
+  id: 888888888,
   name: 'TEST EVENT',
   shares: 0,
   reactions: {
@@ -38,76 +39,75 @@ const event = {
     coordinates: [60, 25],
   },
 }
-
 describe('GET /api/events', () => {
   beforeAll(async () => {
-    const passwordHash = await bcrypt.hash(user.password, 10)
-    const createdUser = await User.create({
-      username: user.username,
-      passwordHash: passwordHash,
-    })
-
     await Event.destroy({
-      name: event.name,
-      where: {
-        post_url: event.post_url,
-      },
+      where: { user_id: user.id },
     })
-    await Event.create({ ...event, id: 999999, userId: createdUser.id }) //Created event from test data
+    await Session.destroy({
+      where: { user_id: user.id },
+    })
+    await User.destroy({
+      where: { id: user.id },
+    })
+    const password_hash = await bcrypt.hash(user.password, 10)
+    const createdUser = await User.create({
+      ...user,
+      password_hash: password_hash,
+    })
+    await Event.create({ ...event, user_id: createdUser.id })
   })
-
   describe('correct return type and data', () => {
     test('response should be an array', async () => {
       const response = await api.get('/api/events').expect(200)
       expect(response.body).toBeInstanceOf(Array)
     })
-
     test('test data exists in array', async () => {
       const response = await api.get('/api/events').expect(200)
       expect(response.body).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
+            id: event.id,
             post_url: event.post_url,
           }),
         ])
       )
     })
     test('test endpoint for fetching a single event', async () => {
-      const response = await api.get(`/api/events/999999`) //Test data id is 999999
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          post_url: event.post_url,
-        })
-      )
+      const response = await api.get(`/api/events/${event.id}`)
+      expect(response.body.id).toEqual(event.id)
+      expect(response.body.content).toEqual(event.content)
     })
   })
-
   afterAll(async () => {
     await Event.destroy({
-      name: event.name,
-      where: {
-        post_url: event.post_url,
-      },
+      where: { user_id: user.id },
     })
-    await User.destroy({ where: { username: user.username } })
+    await Session.destroy({
+      where: { user_id: user.id },
+    })
+    await User.destroy({
+      where: { id: user.id },
+    })
   })
 })
-
 describe('POST /api/events', () => {
   beforeAll(async () => {
     await Event.destroy({
-      name: event.name,
-      where: {
-        post_url: event.post_url,
-      },
+      where: { user_id: user.id },
     })
-    const passwordHash = await bcrypt.hash(user.password, 10)
+    await Session.destroy({
+      where: { user_id: user.id },
+    })
+    await User.destroy({
+      where: { id: user.id },
+    })
+    const password_hash = await bcrypt.hash(user.password, 10)
     await User.create({
-      username: user.username,
-      passwordHash: passwordHash,
+      ...user,
+      password_hash: password_hash,
     })
   })
-
   describe('Adding new event', () => {
     test('endpoint returns the created event', async () => {
       const userLogin = await api.post('/api/login').send(user)
@@ -115,7 +115,6 @@ describe('POST /api/events', () => {
         .post(`/api/events`)
         .send(event)
         .set('Authorization', `Bearer ${userLogin.body.token}`)
-
       // eslint-disable-next-line no-unused-vars
       const { updatedAt, createdAt, userId, ...eventWithoutTimestamps } =
         result.body
@@ -125,17 +124,15 @@ describe('POST /api/events', () => {
         })
       )
     })
-
     test('created event with duplicate url', async () => {
       const userLogin = await api.post('/api/login').send(user)
+
       const result = await api
         .post(`/api/events`)
-        .send(event)
+        .send({ ...event, id: 77777777 })
         .set('Authorization', `Bearer ${userLogin.body.token}`)
-
       expect(result.body.error).toEqual(['post_url must be unique'])
     })
-
     test('post request is missing mandatory NAME field', async () => {
       const userLogin = await api.post('/api/login').send(user)
       const { name, ...eventWithoutNameField } = event
@@ -143,10 +140,8 @@ describe('POST /api/events', () => {
         .post(`/api/events`)
         .send(eventWithoutNameField)
         .set('Authorization', `Bearer ${userLogin.body.token}`)
-
       expect(result.body.error).toEqual(['event.name cannot be null'])
     })
-
     test('post request is missing mandatory CONTENT field', async () => {
       const userLogin = await api.post('/api/login').send(user)
       const { content, ...eventWithoutContentField } = event
@@ -154,10 +149,8 @@ describe('POST /api/events', () => {
         .post(`/api/events`)
         .send(eventWithoutContentField)
         .set('Authorization', `Bearer ${userLogin.body.token}`)
-
       expect(result.body.error).toEqual(['event.content cannot be null'])
     })
-
     test('post request is missing mandatory POSTED_ON field', async () => {
       const userLogin = await api.post('/api/login').send(user)
       const { posted_on, ...eventWithoutPostedOnField } = event
@@ -165,21 +158,17 @@ describe('POST /api/events', () => {
         .post(`/api/events`)
         .send(eventWithoutPostedOnField)
         .set('Authorization', `Bearer ${userLogin.body.token}`)
-
       expect(result.body.error).toEqual(['event.posted_on cannot be null'])
     })
-
-    describe('add events with 10 m distance to each other', () => {
+    describe('add events with 10 m distance of each other', () => {
       let dummyData = []
-
       beforeAll(async () => {
         await Event.destroy({
           where: {
-            name: event.name,
+            user_id: user.id,
           },
         })
         const userLogin = await api.post('/api/login').send(user)
-
         const latitude = 74.45132200544495
         const meters = 10
         // create 10 dummy objects
@@ -189,20 +178,18 @@ describe('POST /api/events', () => {
             type: 'Point',
             coordinates: [new_latitude, 19.027280232194727],
           }
-
           const result = await api
             .post(`/api/events`)
             .send({
               ...event,
               post_url: `url${i}`,
               location: location,
+              id: event.id + i,
             })
             .set('Authorization', `Bearer ${userLogin.body.token}`)
-
           dummyData.push(result.body)
         }
       })
-
       test('expect api to return all added events inside the rectangle', async () => {
         const result = await api.get('/api/events').query({
           xmin: 74.35626502890085,
@@ -212,7 +199,6 @@ describe('POST /api/events', () => {
         })
         expect(result.body.length).toEqual(10)
       })
-
       test('Expect event id to be exluded from query', async () => {
         const result = await api.get('/api/events').query({
           xmin: 74.35626502890085,
@@ -236,10 +222,13 @@ describe('POST /api/events', () => {
   })
   afterAll(async () => {
     await Event.destroy({
-      where: {
-        name: event.name,
-      },
+      where: { user_id: user.id },
     })
-    await User.destroy({ where: { username: user.username } })
+    await Session.destroy({
+      where: { user_id: user.id },
+    })
+    await User.destroy({
+      where: { id: user.id },
+    })
   })
 })

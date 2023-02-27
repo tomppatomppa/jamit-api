@@ -2,14 +2,11 @@ const Event = require('./event')
 const User = require('./user')
 const Session = require('./session')
 
-// User.sync()
-// Event.sync()
-// Session.sync()
-
 User.hasMany(Event)
 Event.belongsTo(User)
 
-User.hasMany(Session)
+User.hasMany(Session, { onDelete: 'cascade', hooks: true })
+
 Session.belongsTo(User)
 
 module.exports = {

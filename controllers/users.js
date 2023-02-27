@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt')
+const { User } = require('../models/index')
 
 const router = require('express').Router()
-const User = require('../models/user')
 
 const { userFromToken } = require('../util/middleware')
 
@@ -30,22 +30,16 @@ router.post('/', async (req, res) => {
   const passwordHash = await bcrypt.hash(password, saltRounds)
   const createdUser = await User.create({
     ...req.body,
-    passwordHash: passwordHash,
+    password_hash: passwordHash,
   })
 
-  res.status(200).json(createdUser)
+  return res.status(200).json(createdUser)
 })
 
 router.delete('/', userFromToken, async (req, res) => {
-  console.log(req.user.username, req.body.username)
-  if (req.user.username !== req.body.username) {
-    return res.status(403).json({ error: 'No permission to delete this user' })
-  }
-  await User.destroy({
-    where: {
-      id: req.user.id,
-    },
-  })
-  res.status(201).json(`Succesfully deleted user`)
+  const user = await User.findByPk(req.user.id)
+  await user.destroy()
+
+  return res.status(201).json(`Succesfully deleted user`)
 })
 module.exports = router

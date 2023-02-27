@@ -6,7 +6,7 @@ class User extends Model {
   toJSON() {
     // exclude passwordHash by default
     let attributes = Object.assign({}, this.get())
-    delete attributes.passwordHash
+    delete attributes.password_hash
     return attributes
   }
 }
@@ -29,7 +29,7 @@ User.init(
     name: {
       type: DataTypes.STRING,
     },
-    passwordHash: {
+    password_hash: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,

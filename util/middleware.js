@@ -47,7 +47,7 @@ const userFromToken = async (req, res, next) => {
   if (session.user.disabled) {
     return res.status(401).json({ error: 'account disabled' })
   }
-
+  console.log(session.user)
   req.user = session.user
 
   next()

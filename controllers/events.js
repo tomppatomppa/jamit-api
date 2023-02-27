@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
       excludedIds = '',
       filterByDate = '',
     } = req.query
-    console.log(filterByDate)
+
     const exludeQuery = excludedIds ? `AND id NOT IN (${excludedIds})` : ''
     const eventsInsideArea = await sequelize.query(
       //For accurate results, 4326 has to match the coordinate system used in your model
@@ -27,7 +27,8 @@ router.get('/', async (req, res) => {
     return res.status(200).json(eventsInsideArea[0])
   }
 
-  const allEvents = await Event.findAll()
+  //TODO: why is the query returning userId field when it doesnt exists in the model
+  const allEvents = await Event.findAll({ attributes: { exclude: ['userId'] } })
   return res.json(allEvents)
 })
 
@@ -39,7 +40,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', userFromToken, async (req, res) => {
   const createdEvent = await Event.create({
     ...req.body,
-    userId: req.user.id,
+    user_id: req.user.id,
   })
   res.status(200).json(createdEvent)
 })

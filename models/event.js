@@ -45,7 +45,10 @@ Event.init(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-
+    // start_date: {
+    //   type: DataTypes.DATE,
+    //   allowNull: false,
+    // },
     video: {
       type: DataTypes.ARRAY(DataTypes.TEXT),
     },
@@ -57,7 +60,7 @@ Event.init(
       allowNull: false,
       unique: true,
     },
-    userId: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: { model: 'users', key: 'id' },

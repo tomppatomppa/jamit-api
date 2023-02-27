@@ -25,7 +25,7 @@ router.post('/', async (req, response) => {
   })
 
   const passwordCorrect =
-    user === null ? false : await bcrypt.compare(password, user.passwordHash)
+    user === null ? false : await bcrypt.compare(password, user.password_hash)
 
   if (!(user && passwordCorrect)) {
     return response.status(401).json({
@@ -40,7 +40,7 @@ router.post('/', async (req, response) => {
 
   const token = jwt.sign(userForToken, SECRET)
 
-  await Session.create({ token, userId: user.id })
+  await Session.create({ token, user_id: user.id })
 
   response.status(200).send({ token, username: user.username })
 })
@@ -48,7 +48,7 @@ router.post('/', async (req, response) => {
 router.delete('/', userFromToken, async (req, res) => {
   await Session.destroy({
     where: {
-      userId: req.user.id,
+      user_id: req.user.id,
     },
   })
 
