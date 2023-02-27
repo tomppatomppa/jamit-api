@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
     const exludeQuery = excludedIds ? `AND id NOT IN (${excludedIds})` : ''
     const eventsInsideArea = await sequelize.query(
       //For accurate results, 4326 has to match the coordinate system used in your model
-      `SELECT * FROM events WHERE ST_Intersects(location, ST_MakeEnvelope(${xmin},${ymin},${xmax},${ymax}, 4326)) ${exludeQuery}`
+      `SELECT * FROM events id WHERE ST_Intersects(location, ST_MakeEnvelope(${xmin},${ymin},${xmax},${ymax}, 4326)) ${exludeQuery} LIMIT 200;`
     )
 
     return res.status(200).json(eventsInsideArea[0])
