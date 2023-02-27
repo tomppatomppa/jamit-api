@@ -7,15 +7,23 @@ const { userFromToken } = require('../util/middleware')
 
 router.get('/', async (req, res) => {
   if (Object.keys(req.query).length !== 0) {
-    //bottom left and top right corner of a rectangle
-    const { xmin, ymin, xmax, ymax, excludedIds = '' } = req.query
-
+    //query options
+    //TODO: check for valid cooridnate values
+    const {
+      xmin,
+      ymin,
+      xmax,
+      ymax,
+      excludedIds = '',
+      filterByDate = '',
+    } = req.query
+    console.log(filterByDate)
     const exludeQuery = excludedIds ? `AND id NOT IN (${excludedIds})` : ''
     const eventsInsideArea = await sequelize.query(
       //For accurate results, 4326 has to match the coordinate system used in your model
       `SELECT * FROM events WHERE ST_Intersects(location, ST_MakeEnvelope(${xmin},${ymin},${xmax},${ymax}, 4326)) ${exludeQuery}`
     )
-    console.log(eventsInsideArea[0])
+
     return res.status(200).json(eventsInsideArea[0])
   }
 

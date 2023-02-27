@@ -45,6 +45,7 @@ Event.init(
       type: DataTypes.TEXT,
       allowNull: false,
     },
+
     video: {
       type: DataTypes.ARRAY(DataTypes.TEXT),
     },

@@ -2,9 +2,9 @@ const Event = require('./event')
 const User = require('./user')
 const Session = require('./session')
 
-User.sync()
-Event.sync()
-Session.sync()
+// User.sync()
+// Event.sync()
+// Session.sync()
 
 User.hasMany(Event)
 Event.belongsTo(User)
