@@ -68,73 +68,142 @@ describe('GET /api/events', () => {
     })
     await Event.create({ ...event, user_id: createdUser.id })
   })
-  describe('correct return type and data', () => {
-    test('query without spefifying an area should return 400', async () => {
-      await api.get('/api/events').expect(400)
-    })
-    test('query without xmin, ymin, xmax, ymax should cause an error', async () => {
-      const response = await api.get('/api/events').expect(400)
-      expect(response.body.errors).toBeDefined()
-    })
-    test('invalid query param "after" returns 400 and error message', async () => {
-      const response = await api
-        .get('/api/events')
-        .expect(400)
-        .query({
-          ...baseQuery,
-          after: 'not-a-date',
-        })
-      expect(response.body.errors[0].msg).toEqual('Invalid value')
-      expect(response.body.errors[0].param).toEqual('after')
-    })
-    test('empty query param "after"  should return 200', async () => {
-      const response = await api
-        .get('/api/events')
-        .expect(200)
-        .query({
-          ...baseQuery,
-          after: '',
-        })
-    })
-    test('query param "after" yyyy-mm-dd should return 200', async () => {
-      await api
-        .get('/api/events')
-        .expect(200)
-        .query({
-          ...baseQuery,
-          after: '2023-03-02',
-        })
-    })
-    test('response should be an array', async () => {
-      const response = await api
-        .get('/api/events')
-        .expect(200)
-        .query({
-          ...baseQuery,
-        })
-      expect(response.body).toBeInstanceOf(Array)
+  describe('all available query params for /api/events', () => {
+    describe('baseQuery with just area defined', () => {
+      test('query without spefifying an area should return 400', async () => {
+        await api.get('/api/events').expect(400)
+      })
+      test('query without any one of xmin, ymin, xmax, ymax should cause an error', async () => {
+        const response = await api.get('/api/events').expect(400)
+        expect(response.body.errors).toBeDefined()
+      })
     })
 
-    test('test data exists in array', async () => {
-      const response = await api.get('/api/events').query({
-        ...baseQuery,
+    describe('testing query parameter "after"  ', () => {
+      test('invalid query param "after" returns 400 and error message', async () => {
+        const response = await api
+          .get('/api/events')
+          .expect(400)
+          .query({
+            ...baseQuery,
+            after: 'not-a-date',
+          })
+        expect(response.body.errors[0].msg).toEqual('Invalid value')
+        expect(response.body.errors[0].param).toEqual('after')
       })
-      expect(response.body).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            id: event.id,
-            post_url: event.post_url,
-          }),
-        ])
-      )
+      test('empty query param "after"  should return 200', async () => {
+        const response = await api
+          .get('/api/events')
+          .expect(200)
+          .query({
+            ...baseQuery,
+            after: '', //Should default to current date yyyy-mm-dd
+          })
+      })
+      test('query param "after" yyyy-mm-dd should return 200', async () => {
+        await api
+          .get('/api/events')
+          .expect(200)
+          .query({
+            ...baseQuery,
+            after: '2023-03-02',
+          })
+      })
     })
-    //TODO: query parameters "before" and "limit"
-    test('test endpoint for fetching a single event', async () => {
-      const response = await api.get(`/api/events/${event.id}`)
-      expect(response.body.id).toEqual(event.id)
-      expect(response.body.content).toEqual(event.content)
+    //query params "before"
+    describe('query param "before"', () => {
+      test('invalid query param "before" returns 400 and error message', async () => {
+        const response = await api
+          .get('/api/events')
+          .expect(400)
+          .query({
+            ...baseQuery,
+            before: 'not-a-date',
+          })
+        expect(response.body.errors[0].msg).toEqual('Invalid value')
+        expect(response.body.errors[0].param).toEqual('before')
+      })
+      test('empty query param "before" should return 200', async () => {
+        await api
+          .get('/api/events')
+          .expect(200)
+          .query({
+            ...baseQuery,
+            before: '', //should default 3000-12-31 if nothing is provided
+          })
+      })
+      test('query param "before" yyyy-mm-dd should return 200', async () => {
+        await api
+          .get('/api/events')
+          .expect(200)
+          .query({
+            ...baseQuery,
+            before: '2023-03-02',
+          })
+      })
+    })
+    //query params "limit"
+    describe('query param "limit"', () => {
+      test('limit cannot be over integer over 200', async () => {
+        const response = await api
+          .get('/api/events')
+          .expect(400)
+          .query({
+            ...baseQuery,
+            limit: 201,
+          })
+        expect(response.body.errors[0].msg).toEqual(
+          'limit cannot be greater than 200'
+        )
+        expect(response.body.errors[0].param).toEqual('limit')
+      })
+      test('limit set to 0 should throw an error', async () => {
+        const response = await api
+          .get('/api/events')
+          .expect(400)
+          .query({
+            ...baseQuery,
+            limit: 0,
+          })
+        expect(response.body.errors[0].msg).toEqual(
+          'limit cannot be less than 1'
+        )
+      })
+    })
+    describe('returns correct format and event', () => {
+      test('response should be an array', async () => {
+        const response = await api
+          .get('/api/events')
+          .expect(200)
+          .query({
+            ...baseQuery,
+          })
+        expect(response.body).toBeInstanceOf(Array)
+      })
+
+      test('test data exists in array', async () => {
+        const response = await api.get('/api/events').query({
+          ...baseQuery,
+        })
+        expect(response.body).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: event.id,
+              post_url: event.post_url,
+            }),
+          ])
+        )
+      })
+
+      test('test endpoint for fetching a single event', async () => {
+        const response = await api.get(`/api/events/${event.id}`)
+        expect(response.body.id).toEqual(event.id)
+        expect(response.body.content).toEqual(event.content)
+      })
     })
   })
+  //Returns something
+
   afterAll(async () => {
     await Event.destroy({
       where: { user_id: user.id },

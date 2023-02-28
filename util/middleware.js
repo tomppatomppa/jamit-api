@@ -107,6 +107,9 @@ function eventQueryValidation() {
         if (value && value > 200) {
           throw new Error('limit cannot be greater than 200')
         }
+        if (value && value < 1) {
+          throw new Error('limit cannot be less than 1')
+        }
         return true
       }),
     query('after').default(getDateYesterday()).isDate(),
