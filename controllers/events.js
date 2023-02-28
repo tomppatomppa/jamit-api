@@ -12,7 +12,6 @@ router.get('/', eventQueryValidation(), async (req, res) => {
     return res.status(400).json({ errors: errors.array() })
   }
 
-  //TODO: check for valid cooridnate values
   const {
     xmin,
     ymin,
@@ -31,10 +30,6 @@ router.get('/', eventQueryValidation(), async (req, res) => {
   )
 
   return res.status(200).json(eventsInsideArea[0])
-
-  //  TODO: why is the query returning userId field when it doesnt exists in the model
-  //  const allEvents = await Event.findAll({ attributes: { exclude: ['userId'] } })
-  //  return res.json(allEvents)
 })
 
 router.get('/:id', async (req, res) => {
