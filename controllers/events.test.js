@@ -39,7 +39,9 @@ const event = {
     type: 'Point',
     coordinates: [60, 25],
   },
+  start_date: '2023-03-02T21:16:59.486Z',
 }
+
 describe('GET /api/events', () => {
   beforeAll(async () => {
     await Event.destroy({
@@ -112,18 +114,20 @@ describe('POST /api/events', () => {
   describe('Adding new event', () => {
     test('endpoint returns the created event', async () => {
       const userLogin = await api.post('/api/login').send(user)
+
       const result = await api
         .post(`/api/events`)
         .send(event)
         .set('Authorization', `Bearer ${userLogin.body.token}`)
       // eslint-disable-next-line no-unused-vars
-      const { updatedAt, createdAt, userId, ...eventWithoutTimestamps } =
+      const { updatedAt, createdAt, user_id, ...eventWithoutTimestamps } =
         result.body
       expect(eventWithoutTimestamps).toEqual(
         expect.objectContaining({
           ...event,
         })
       )
+      expect(token).toEqual('he')
     })
     test('created event with duplicate url', async () => {
       const userLogin = await api.post('/api/login').send(user)
@@ -161,6 +165,16 @@ describe('POST /api/events', () => {
         .set('Authorization', `Bearer ${userLogin.body.token}`)
       expect(result.body.error).toEqual(['event.posted_on cannot be null'])
     })
+    test('post request is missing mandatory START_DATE field', async () => {
+      const userLogin = await api.post('/api/login').send(user)
+      const { start_date, ...eventWithoutPostedOnField } = event
+      const result = await api
+        .post(`/api/events`)
+        .send(eventWithoutPostedOnField)
+        .set('Authorization', `Bearer ${userLogin.body.token}`)
+      expect(result.body.error).toEqual(['event.start_date cannot be null'])
+    })
+
     describe('add events with 10 m distance of each other', () => {
       let dummyData = []
       beforeAll(async () => {

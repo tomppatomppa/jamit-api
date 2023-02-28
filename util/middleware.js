@@ -1,5 +1,10 @@
 const { User, Session } = require('../models')
+const {
+  oneOf,
 
+  check,
+  query,
+} = require('express-validator')
 const errorHandler = (error, req, res, next) => {
   if (error.name === 'SequelizeValidationError') {
     return res.status(400).send({
@@ -52,7 +57,62 @@ const userFromToken = async (req, res, next) => {
 
   next()
 }
+
+function eventQueryValidation() {
+  return [
+    oneOf([
+      [
+        check('xmin')
+          .exists()
+          .custom((value) => {
+            if (value > 90 || value < -90) {
+              throw new Error('xmin cannot be greater than 90 or less than -90')
+            }
+            return true
+          }),
+        check('ymin')
+          .exists()
+          .custom((value) => {
+            if (value > 180 || value < -180) {
+              throw new Error(
+                'ymin cannot be greater than 180 or less than -180'
+              )
+            }
+            return true
+          }),
+        check('xmax')
+          .exists()
+          .custom((value) => {
+            if (value > 90 || value < -90) {
+              throw new Error('xmax cannot be greater than 90 or less than -90')
+            }
+            return true
+          }),
+        check('ymax')
+          .exists()
+          .custom((value) => {
+            if (value > 180 || value < -180) {
+              throw new Error(
+                'ymax cannot be greater than 180 or less than -180'
+              )
+            }
+            return true
+          }),
+      ],
+    ]),
+    query('limit')
+      .default(50)
+      .isNumeric()
+      .custom((value) => {
+        if (value && value > 200) {
+          throw new Error('limit cannot be greater than 200')
+        }
+        return true
+      }),
+  ]
+}
 module.exports = {
+  eventQueryValidation,
   errorHandler,
   userFromToken,
 }
