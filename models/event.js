@@ -45,10 +45,10 @@ Event.init(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    // start_date: {
-    //   type: DataTypes.DATE,
-    //   allowNull: false,
-    // },
+    start_date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
     video: {
       type: DataTypes.ARRAY(DataTypes.TEXT),
     },
