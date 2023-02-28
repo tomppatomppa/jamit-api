@@ -13,12 +13,21 @@ router.get('/', eventQueryValidation(), async (req, res) => {
   }
 
   //TODO: check for valid cooridnate values
-  const { xmin, ymin, xmax, ymax, excludedIds = '', limit } = req.query
+  const {
+    xmin,
+    ymin,
+    xmax,
+    ymax,
+    excludedIds = '',
+    limit,
+    after,
+    before,
+  } = req.query
 
   const exludeQuery = excludedIds ? `AND id NOT IN (${excludedIds})` : ''
   const eventsInsideArea = await sequelize.query(
     //For accurate results, 4326 has to match the coordinate system used in your model
-    `SELECT * FROM events id WHERE ST_Intersects(location, ST_MakeEnvelope(${xmin},${ymin},${xmax},${ymax}, 4326)) ${exludeQuery} LIMIT ${limit};`
+    `SELECT * FROM events id WHERE start_date > '${after}' AND start_date < '${before}' AND ST_Intersects(location, ST_MakeEnvelope(${xmin},${ymin},${xmax},${ymax}, 4326)) ${exludeQuery} LIMIT ${limit};`
   )
 
   return res.status(200).json(eventsInsideArea[0])

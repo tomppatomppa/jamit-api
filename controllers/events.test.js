@@ -11,6 +11,7 @@ const user = {
   username: 'testuser@hotmail.com',
   password: 'secretPassword',
 }
+
 const event = {
   id: 888888888,
   name: 'TEST EVENT',
@@ -42,6 +43,13 @@ const event = {
   start_date: '2023-03-02T21:16:59.486Z',
 }
 
+const baseQuery = {
+  xmin: event.location.coordinates[0],
+  ymin: event.location.coordinates[1],
+  xmax: event.location.coordinates[0] + 0.00000001,
+  ymax: event.location.coordinates[1] + 0.00000001,
+}
+
 describe('GET /api/events', () => {
   beforeAll(async () => {
     await Event.destroy({
@@ -61,12 +69,56 @@ describe('GET /api/events', () => {
     await Event.create({ ...event, user_id: createdUser.id })
   })
   describe('correct return type and data', () => {
+    test('query without spefifying an area should return 400', async () => {
+      await api.get('/api/events').expect(400)
+    })
+    test('query without xmin, ymin, xmax, ymax should cause an error', async () => {
+      const response = await api.get('/api/events').expect(400)
+      expect(response.body.errors).toBeDefined()
+    })
+    test('invalid query param "after" returns 400 and error message', async () => {
+      const response = await api
+        .get('/api/events')
+        .expect(400)
+        .query({
+          ...baseQuery,
+          after: 'not-a-date',
+        })
+      expect(response.body.errors[0].msg).toEqual('Invalid value')
+      expect(response.body.errors[0].param).toEqual('after')
+    })
+    test('empty query param "after"  should return 200', async () => {
+      const response = await api
+        .get('/api/events')
+        .expect(200)
+        .query({
+          ...baseQuery,
+          after: '',
+        })
+    })
+    test('query param "after" yyyy-mm-dd should return 200', async () => {
+      await api
+        .get('/api/events')
+        .expect(200)
+        .query({
+          ...baseQuery,
+          after: '2023-03-02',
+        })
+    })
     test('response should be an array', async () => {
-      const response = await api.get('/api/events').expect(200)
+      const response = await api
+        .get('/api/events')
+        .expect(200)
+        .query({
+          ...baseQuery,
+        })
       expect(response.body).toBeInstanceOf(Array)
     })
+
     test('test data exists in array', async () => {
-      const response = await api.get('/api/events').expect(200)
+      const response = await api.get('/api/events').query({
+        ...baseQuery,
+      })
       expect(response.body).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -76,6 +128,7 @@ describe('GET /api/events', () => {
         ])
       )
     })
+    //TODO: query parameters "before" and "limit"
     test('test endpoint for fetching a single event', async () => {
       const response = await api.get(`/api/events/${event.id}`)
       expect(response.body.id).toEqual(event.id)
@@ -127,7 +180,6 @@ describe('POST /api/events', () => {
           ...event,
         })
       )
-      expect(token).toEqual('he')
     })
     test('created event with duplicate url', async () => {
       const userLogin = await api.post('/api/login').send(user)
@@ -183,6 +235,7 @@ describe('POST /api/events', () => {
             user_id: user.id,
           },
         })
+
         const userLogin = await api.post('/api/login').send(user)
         const latitude = 74.45132200544495
         const meters = 10

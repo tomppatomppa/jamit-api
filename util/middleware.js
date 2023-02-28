@@ -109,7 +109,16 @@ function eventQueryValidation() {
         }
         return true
       }),
+    query('after').default(getDateYesterday()).isDate(),
+    query('before').default('3000-12-31').isDate(),
   ]
+}
+//return yesterdays date as yyyy-mm-dd
+const getDateYesterday = () => {
+  const yesterday = ((d) => new Date(d.setDate(d.getDate() - 1)))(new Date())
+    .toISOString()
+    .slice(0, 10)
+  return yesterday
 }
 module.exports = {
   eventQueryValidation,
