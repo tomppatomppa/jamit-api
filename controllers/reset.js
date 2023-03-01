@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 const nodemailer = require('nodemailer')
-const { SECRET, SENDER, PASSWRD } = require('../util/config')
+const { SECRET, SENDER, SENDER_PASSWORD } = require('../util/config')
 const { sessionFrom } = require('../util/middleware')
 
 //TODO: improve
@@ -99,7 +99,7 @@ const sendRecoveryEmail = async (token, username) => {
     },
     auth: {
       user: SENDER, // generated ethereal user
-      pass: PASSWRD, // generated ethereal password
+      pass: SENDER_PASSWORD, // generated ethereal password
     },
   })
   let info = await transporter.sendMail({

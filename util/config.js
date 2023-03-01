@@ -10,5 +10,5 @@ module.exports = {
   DB_USERNAME: process.env.DB_USERNAME,
   DB_PASSWORD: process.env.DB_PASSWORD,
   SENDER: process.env.SENDER,
-  PASSWRD: process.env.PASSWORD,
+  SENDER_PASSWORD: process.env.SENDER_PASSWORD,
 }
