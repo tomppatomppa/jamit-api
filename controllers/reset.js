@@ -8,29 +8,7 @@ const nodemailer = require('nodemailer')
 const { SECRET, SENDER, PASSWRD } = require('../util/config')
 const { sessionFrom } = require('../util/middleware')
 
-const sendRecoveryEmail = async (token, username) => {
-  let transporter = nodemailer.createTransport({
-    host: 'smtp.office365.com',
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    tls: {
-      rejectUnauthorized: false,
-    },
-    auth: {
-      user: SENDER, // generated ethereal user
-      pass: PASSWRD, // generated ethereal password
-    },
-  })
-  let info = await transporter.sendMail({
-    from: `${SENDER}`, // sender address
-    to: `${username}`, // list of receivers
-    subject: 'Jamit password recovery', // Subject line
-    text: 'Use this code to login', // plain text body
-    html: `<b>Use the code provided to login through the app</b><p>CODE: ${token}</b>`,
-  })
-
-  return info
-}
+//TODO: improve
 router.post('/', async (req, res) => {
   const { username } = req.body
 
@@ -62,24 +40,24 @@ router.post('/', async (req, res) => {
 
   await Session.create({ token, user_id: user.id })
 
-  try {
-    await sendRecoveryEmail(token, username)
-    res
-      .status(200)
-      .json(
-        'Instructions to reset your password has been sent to your email. Remember to check you junk folder!'
-      )
-  } catch (e) {
-    await Session.destroy({
-      where: {
-        user_id: user.id,
-      },
-    })
-    return res.status(400).json('Somwthing went wrong sending mail')
+  const result = await sendRecoveryEmail(token, username)
+
+  if (result.accepted.length !== 0) {
+    return res.status(200).json(
+      `Recovery instructions sent to ${result?.accepted[0]}.
+         Remember to check you junk folder!`
+    )
   }
+
+  await Session.destroy({
+    where: {
+      user_id: user.id,
+    },
+  })
+  return res.status(400).json('Something went wrong sending mail')
 })
 
-router.post('/password', async (req, res) => {
+router.put('/', async (req, res) => {
   const { token, password } = req.body
 
   if (!token || !password) {
@@ -111,4 +89,27 @@ router.post('/password', async (req, res) => {
   res.status(200).json('Password has been reset')
 })
 
+const sendRecoveryEmail = async (token, username) => {
+  let transporter = nodemailer.createTransport({
+    host: 'smtp.office365.com',
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    tls: {
+      rejectUnauthorized: false,
+    },
+    auth: {
+      user: SENDER, // generated ethereal user
+      pass: PASSWRD, // generated ethereal password
+    },
+  })
+  let info = await transporter.sendMail({
+    from: `${SENDER}`, // sender address
+    to: `${username}`, // list of receivers
+    subject: 'Jamit password recovery', // Subject line
+    text: 'Use this code to login', // plain text body
+    html: `<b>Use the code provided to login through the app</b><p>CODE: ${token}</b>`,
+  })
+
+  return info
+}
 module.exports = router
