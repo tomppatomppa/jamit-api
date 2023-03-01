@@ -1,10 +1,6 @@
 const { User, Session } = require('../models')
-const {
-  oneOf,
+const { oneOf, check, query } = require('express-validator')
 
-  check,
-  query,
-} = require('express-validator')
 const errorHandler = (error, req, res, next) => {
   if (error.name === 'SequelizeValidationError') {
     return res.status(400).send({
@@ -129,4 +125,5 @@ module.exports = {
   eventQueryValidation,
   errorHandler,
   userFromToken,
+  sessionFrom,
 }

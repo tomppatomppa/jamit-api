@@ -11,6 +11,7 @@ router.get('/', async (req, res) => {
   const allSessions = await Session.findAll()
   res.json(allSessions)
 })
+
 router.post('/', async (req, response) => {
   const { username, password } = req.body
 
