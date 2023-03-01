@@ -114,6 +114,8 @@ function eventQueryValidation() {
       }),
     query('after').default(getDateYesterday()).isDate(),
     query('before').default('3000-12-31').isDate(),
+    query('exludedIds').optional().isArray(),
+    //TODO: validation for integer values
   ]
 }
 //return yesterdays date as yyyy-mm-dd
