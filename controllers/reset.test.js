@@ -31,7 +31,6 @@ describe('POST api/reset', () => {
       expect(response.status).toBe(400)
     })
   })
-
   describe('If username doesnt exist throw error', () => {
     test("provided username doesn't exist in the database", async () => {
       const response = await api.post('/api/reset').send(user)
