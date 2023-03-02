@@ -13,7 +13,7 @@ router.post('/', async (req, res) => {
   const { username } = req.body
 
   if (!username) {
-    return res.status(400).json('No username provided')
+    return res.status(400).json({ error: 'No username provided' })
   }
 
   const user = await User.findOne({
@@ -21,7 +21,8 @@ router.post('/', async (req, res) => {
       username,
     },
   })
-  if (!user) return res.status(400).json('User does not exist')
+
+  if (!user) return res.status(400).json({ error: 'User does not exist' })
 
   await Session.destroy({
     where: {
@@ -54,20 +55,22 @@ router.post('/', async (req, res) => {
       user_id: user.id,
     },
   })
-  return res.status(400).json('Something went wrong sending mail')
+  return res.status(400).json({ error: 'Something went wrong sending mail' })
 })
 
 router.put('/', async (req, res) => {
   const { token, password } = req.body
 
   if (!token || !password) {
-    return res.status(400).json('Invalid request')
+    return res.status(400).json({
+      error: 'Please provide the code sent your email, and a new password',
+    })
   }
 
   const session = await sessionFrom(token)
 
   if (!session)
-    return res.status(400).json('The code you provided does not exist')
+    return res.status(400).json({ error: 'The code you provided is invalid' })
 
   if (password.length < 8) {
     return res
