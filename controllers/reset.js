@@ -66,7 +66,8 @@ router.put('/', async (req, res) => {
 
   const session = await sessionFrom(token)
 
-  if (!session) return res.status(400).json('Something went wrong')
+  if (!session)
+    return res.status(400).json('The code you provided does not exist')
 
   if (password.length < 8) {
     return res
