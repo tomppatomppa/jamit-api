@@ -1,13 +1,14 @@
 const router = require('express').Router()
-const { Place, Event } = require('../models/')
+const { Place } = require('../models/')
 
 router.get('/', async (req, res) => {
-  const user = await Place.findAll({
-    include: {
-      model: Event,
-    },
-  })
-  res.status(200).json(user)
+  // const user = await Place.findAll({
+  //   include: {
+  //     model: Event,
+  //   },
+  // })
+  const allPlaces = await Place.findAll({})
+  res.status(200).json(allPlaces)
 })
 
 router.post('/', async (req, res) => {

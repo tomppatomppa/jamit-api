@@ -6,7 +6,7 @@ class Event extends Model {
   toJSON() {
     let attributes = Object.assign({}, this.get())
     if (attributes.location.crs) {
-      delete attributes.userId
+      delete attributes.userId //TODO: deal with postgress creating these
       delete attributes.user_id
       delete attributes.placeId
       delete attributes.place_id
