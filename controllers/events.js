@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator')
 const router = require('express').Router()
 
-const { Event } = require('../models/index')
+const { Event, Place } = require('../models/index')
 const { sequelize } = require('../util/db')
 
 const { userFromToken, eventQueryValidation } = require('../util/middleware')
@@ -41,9 +41,21 @@ router.get('/:id', async (req, res) => {
 })
 
 router.post('/', userFromToken, async (req, res) => {
+  const place = await Place.findOne({
+    where: {
+      facebook_profile: req.body.facebook_profile,
+    },
+  })
+  if (!place) {
+    return res
+      .status(400)
+      .json({ error: 'Confirm that the place where the event is held exists' })
+  }
+
   const createdEvent = await Event.create({
     ...req.body,
     user_id: req.user.id,
+    place_id: place.id,
   })
   res.status(200).json(createdEvent)
 })

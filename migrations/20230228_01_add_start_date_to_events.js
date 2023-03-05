@@ -7,7 +7,6 @@ module.exports = {
       allowNull: false,
     })
   },
-
   down: async ({ context: queryInterface }) => {
     await queryInterface.removeColumn('events', 'start_date')
   },

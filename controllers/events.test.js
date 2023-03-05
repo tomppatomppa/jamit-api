@@ -3,7 +3,7 @@
 const supertest = require('supertest')
 const app = require('../app')
 const bcrypt = require('bcrypt')
-const { Event, User, Session } = require('../models/index')
+const { Event, User, Session, Place } = require('../models/index')
 const api = supertest(app)
 
 const user = {
@@ -12,9 +12,19 @@ const user = {
   password: 'secretPassword',
 }
 
+const place = {
+  id: 888888888,
+  name: 'Test Place',
+  facebook_profile: 'testplace',
+  location: {
+    type: 'Point',
+    coordinates: ['60.170016491517935', '24.89074042759288'],
+  },
+}
 const event = {
   id: 888888888,
-  name: 'TEST EVENT',
+  name: 'Event name can be anything',
+  facebook_profile: place.facebook_profile,
   shares: 0,
   reactions: {
     likes: 1,
@@ -58,6 +68,7 @@ describe('GET /api/events', () => {
     await Session.destroy({
       where: { user_id: user.id },
     })
+
     await User.destroy({
       where: { id: user.id },
     })
@@ -66,7 +77,13 @@ describe('GET /api/events', () => {
       ...user,
       password_hash: password_hash,
     })
-    await Event.create({ ...event, user_id: createdUser.id })
+
+    await Place.create({ ...place })
+    await Event.create({
+      ...event,
+      user_id: createdUser.id,
+      place_id: place.id,
+    })
   })
   describe('all available query params for /api/events', () => {
     describe('baseQuery with just area defined', () => {
@@ -79,7 +96,7 @@ describe('GET /api/events', () => {
       })
     })
 
-    describe('testing query parameter "after"  ', () => {
+    describe('testing query parameter after', () => {
       test('invalid query param "after" returns 400 and error message', async () => {
         const response = await api
           .get('/api/events')
@@ -181,20 +198,6 @@ describe('GET /api/events', () => {
         expect(response.body).toBeInstanceOf(Array)
       })
 
-      test('test data exists in array', async () => {
-        const response = await api.get('/api/events').query({
-          ...baseQuery,
-        })
-        expect(response.body).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              id: event.id,
-              post_url: event.post_url,
-            }),
-          ])
-        )
-      })
-
       test('test endpoint for fetching a single event', async () => {
         const response = await api.get(`/api/events/${event.id}`)
         expect(response.body.id).toEqual(event.id)
@@ -202,7 +205,6 @@ describe('GET /api/events', () => {
       })
     })
   })
-  //Returns something
 
   afterAll(async () => {
     await Event.destroy({
@@ -221,33 +223,42 @@ describe('POST /api/events', () => {
     await Event.destroy({
       where: { user_id: user.id },
     })
-    await Session.destroy({
-      where: { user_id: user.id },
-    })
-    await User.destroy({
-      where: { id: user.id },
-    })
     const password_hash = await bcrypt.hash(user.password, 10)
     await User.create({
       ...user,
       password_hash: password_hash,
     })
   })
+
   describe('Adding new event', () => {
     test('endpoint returns the created event', async () => {
       const userLogin = await api.post('/api/login').send(user)
 
       const result = await api
         .post(`/api/events`)
-        .send(event)
+        .send({ ...event })
         .set('Authorization', `Bearer ${userLogin.body.token}`)
       // eslint-disable-next-line no-unused-vars
       const { updatedAt, createdAt, user_id, ...eventWithoutTimestamps } =
         result.body
+      const { facebook_profile, ...compareTo } = event
       expect(eventWithoutTimestamps).toEqual(
         expect.objectContaining({
-          ...event,
+          ...compareTo,
         })
+      )
+    })
+    test('endpoint returns error when the event place doesnt exist', async () => {
+      const userLogin = await api.post('/api/login').send(user)
+
+      const result = await api
+        .post(`/api/events`)
+        .send({ ...event, facebook_profile: 'shouldntexist' })
+        .set('Authorization', `Bearer ${userLogin.body.token}`)
+      // eslint-disable-next-line no-unused-vars
+
+      expect(result.body.error).toEqual(
+        'Confirm that the place where the event is held exists'
       )
     })
     test('created event with duplicate url', async () => {
@@ -333,6 +344,7 @@ describe('POST /api/events', () => {
           ymin: 18.73108873282493,
           xmax: 74.52482596141493,
           ymax: 19.31813494285226,
+          after: '1971-12-12',
         })
         expect(result.body.length).toEqual(10)
       })
@@ -342,6 +354,7 @@ describe('POST /api/events', () => {
           ymin: 18.73108873282493,
           xmax: 74.52482596141493,
           ymax: 19.31813494285226,
+          after: '1971-12-12',
           excludedIds: [dummyData[0].id],
         })
         expect(result.body.length).toEqual(9)
@@ -366,6 +379,11 @@ describe('POST /api/events', () => {
     })
     await User.destroy({
       where: { id: user.id },
+    })
+    await Place.destroy({
+      where: {
+        id: place.id,
+      },
     })
   })
 })

@@ -97,20 +97,20 @@ const sendRecoveryEmail = async (token, username) => {
   let transporter = nodemailer.createTransport({
     host: 'smtp.office365.com',
     port: 587,
-    secure: false, // true for 465, false for other ports
+    secure: false,
     tls: {
       rejectUnauthorized: false,
     },
     auth: {
-      user: SENDER, // generated ethereal user
-      pass: SENDER_PASSWORD, // generated ethereal password
+      user: SENDER,
+      pass: SENDER_PASSWORD,
     },
   })
   let info = await transporter.sendMail({
-    from: `${SENDER}`, // sender address
-    to: `${username}`, // list of receivers
-    subject: 'Jamit password recovery', // Subject line
-    text: 'Use this code to login', // plain text body
+    from: `${SENDER}`,
+    to: `${username}`,
+    subject: 'Jamit password recovery',
+    text: 'Use this code to login',
     html: `<b>Use the code provided to login through the app</b><p>CODE: ${token}</b>`,
   })
 

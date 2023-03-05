@@ -1,9 +1,14 @@
 const Event = require('./event')
 const User = require('./user')
 const Session = require('./session')
+const Place = require('./place')
 
 User.hasMany(Event)
 Event.belongsTo(User)
+
+Event.belongsTo(Place)
+Place.hasMany(Event)
+// Place.hasMany(Event)
 
 User.hasMany(Session, { onDelete: 'cascade', hooks: true })
 
@@ -13,4 +18,5 @@ module.exports = {
   Event,
   User,
   Session,
+  Place,
 }

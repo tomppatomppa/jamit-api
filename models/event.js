@@ -6,6 +6,10 @@ class Event extends Model {
   toJSON() {
     let attributes = Object.assign({}, this.get())
     if (attributes.location.crs) {
+      delete attributes.userId
+      delete attributes.user_id
+      delete attributes.placeId
+      delete attributes.place_id
       delete attributes.location.crs
     }
     return attributes
@@ -64,6 +68,11 @@ Event.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: { model: 'users', key: 'id' },
+    },
+    place_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: { model: 'places', key: 'id' },
     },
     location: {
       type: DataTypes.GEOMETRY('POINT', 4326),
