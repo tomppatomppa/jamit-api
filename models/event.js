@@ -9,8 +9,8 @@ class Event extends Model {
       delete attributes.userId //TODO: deal with postgress creating these
       delete attributes.user_id
       delete attributes.placeId
-      delete attributes.place_id
-      delete attributes.location.crs
+
+      delete attributes.location
     }
     return attributes
   }
