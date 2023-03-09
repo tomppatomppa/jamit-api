@@ -8,7 +8,6 @@ Event.belongsTo(User)
 
 Event.belongsTo(Place)
 Place.hasMany(Event)
-// Place.hasMany(Event)
 
 User.hasMany(Session, { onDelete: 'cascade', hooks: true })
 

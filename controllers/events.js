@@ -33,8 +33,10 @@ router.get('/', async (req, res) => {
 
   return res.status(200).json({ ...allEvents, nextCursor: cursor })
 })
+
 router.get('/:id', async (req, res) => {
   const event = await Event.findByPk(req.params.id)
+
   return res.status(200).json(event)
 })
 
