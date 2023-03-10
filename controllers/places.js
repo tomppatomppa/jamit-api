@@ -5,6 +5,15 @@ const sequelize = require('sequelize')
 
 //TODO: validations
 router.get('/', async (req, res) => {
+  if (!req.query.envelope) {
+    const allPlaces = await Place.findAll({
+      include: {
+        model: Event,
+        as: 'data',
+      },
+    })
+    return res.status(200).json(allPlaces)
+  }
   //Find all places inside the given envelope,
   const places = await Place.findAll({
     attributes: [
@@ -12,11 +21,12 @@ router.get('/', async (req, res) => {
       'name',
       'facebook_profile',
       'location',
-      [sequelize.fn('COUNT', sequelize.col('events.id')), 'eventCount'],
+      [sequelize.fn('COUNT', sequelize.col('data.id')), 'eventCount'],
     ],
     include: [
       {
         model: Event,
+        as: 'data',
         attributes: [],
         where: {
           start_date: {

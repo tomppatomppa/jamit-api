@@ -7,7 +7,7 @@ User.hasMany(Event)
 Event.belongsTo(User)
 
 Event.belongsTo(Place)
-Place.hasMany(Event)
+Place.hasMany(Event, { as: 'data' })
 
 User.hasMany(Session, { onDelete: 'cascade', hooks: true })
 
