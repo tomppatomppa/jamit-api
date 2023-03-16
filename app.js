@@ -10,6 +10,7 @@ const userRouter = require('./controllers/users')
 const meRouter = require('./controllers/me')
 const resetRouter = require('./controllers/reset')
 const placeRouter = require('./controllers/places')
+const bookmarkRouter = require('./controllers/bookmarks')
 
 app.use(express.json())
 
@@ -25,6 +26,7 @@ app.get('/', async (req, res) => {
 
 app.use(userFromToken)
 app.use('/api/me', meRouter)
+app.use('/api/bookmarks', bookmarkRouter)
 app.use(errorHandler)
 
 module.exports = app

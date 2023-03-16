@@ -2,11 +2,20 @@ const Event = require('./event')
 const User = require('./user')
 const Session = require('./session')
 const Place = require('./place')
+const Bookmark = require('./bookmark')
 
 User.hasMany(Event)
-Event.belongsTo(User)
+Bookmark.belongsTo(User, { foreignKey: 'user_id' })
+Bookmark.belongsTo(Event, {
+  foreignKey: 'item_reference',
+  constraints: false,
+  as: 'events',
+})
+User.hasMany(Bookmark, { foreignKey: 'user_id' })
 
+Event.belongsTo(User)
 Event.belongsTo(Place)
+
 Place.hasMany(Event, { as: 'data' })
 
 User.hasMany(Session, { onDelete: 'cascade', hooks: true })
@@ -18,4 +27,5 @@ module.exports = {
   User,
   Session,
   Place,
+  Bookmark,
 }
