@@ -21,7 +21,6 @@ router.get('/:id', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
-  //TODO: check if already exists
   const bookmarkExists = await Bookmark.findOne({
     where: {
       user_id: req.user.id,
@@ -34,8 +33,8 @@ router.post('/', async (req, res) => {
     return res.status(200).json('Bookmark already exists')
   }
 
-  const bookmark = await Bookmark.create({ ...req.body, user_id: req.user.id })
-  res.status(200).json(bookmark)
+  await Bookmark.create({ ...req.body, user_id: req.user.id })
+  res.status(200).json('Bookmark added')
 })
 
 router.delete('/:id', async (req, res) => {
@@ -53,11 +52,14 @@ router.delete('/:id', async (req, res) => {
 
   res.status(200).json('Bookmark removed')
 })
+
 router.delete('/', async (req, res) => {
+  const arrayOfIds = req.query.ids.split(',')
+  console.log(arrayOfIds)
   await Bookmark.destroy({
     where: {
       user_id: req.user.id,
-      bookmark_reference: req.body.bookmark_reference_ids,
+      bookmark_reference: arrayOfIds,
     },
   })
 
