@@ -54,75 +54,99 @@ const userFromToken = async (req, res, next) => {
   next()
 }
 
-function eventQueryValidation() {
+// function eventQueryValidation() {
+//   return [
+//     oneOf([
+//       [
+//         check('xmin')
+//           .exists()
+//           .custom((value) => {
+//             if (value > 90 || value < -90) {
+//               throw new Error('xmin cannot be greater than 90 or less than -90')
+//             }
+//             return true
+//           }),
+//         check('ymin')
+//           .exists()
+//           .custom((value) => {
+//             if (value > 180 || value < -180) {
+//               throw new Error(
+//                 'ymin cannot be greater than 180 or less than -180'
+//               )
+//             }
+//             return true
+//           }),
+//         check('xmax')
+//           .exists()
+//           .custom((value) => {
+//             if (value > 90 || value < -90) {
+//               throw new Error('xmax cannot be greater than 90 or less than -90')
+//             }
+//             return true
+//           }),
+//         check('ymax')
+//           .exists()
+//           .custom((value) => {
+//             if (value > 180 || value < -180) {
+//               throw new Error(
+//                 'ymax cannot be greater than 180 or less than -180'
+//               )
+//             }
+//             return true
+//           }),
+//       ],
+//     ]),
+//     query('limit')
+//       .default(50)
+//       .isNumeric()
+//       .custom((value) => {
+//         if (value && value > 200) {
+//           throw new Error('limit cannot be greater than 200')
+//         }
+//         if (value && value < 1) {
+//           throw new Error('limit cannot be less than 1')
+//         }
+//         return true
+//       }),
+//     query('after').default(getDateYesterday()).isDate(),
+//     query('before').default('3000-12-31').isDate(),
+//     query('envelope').optional().isArray(),
+//     //TODO: validation for integer values
+//   ]
+// }
+function placeQueryValidation() {
   return [
-    oneOf([
-      [
-        check('xmin')
-          .exists()
-          .custom((value) => {
-            if (value > 90 || value < -90) {
-              throw new Error('xmin cannot be greater than 90 or less than -90')
-            }
-            return true
-          }),
-        check('ymin')
-          .exists()
-          .custom((value) => {
-            if (value > 180 || value < -180) {
-              throw new Error(
-                'ymin cannot be greater than 180 or less than -180'
-              )
-            }
-            return true
-          }),
-        check('xmax')
-          .exists()
-          .custom((value) => {
-            if (value > 90 || value < -90) {
-              throw new Error('xmax cannot be greater than 90 or less than -90')
-            }
-            return true
-          }),
-        check('ymax')
-          .exists()
-          .custom((value) => {
-            if (value > 180 || value < -180) {
-              throw new Error(
-                'ymax cannot be greater than 180 or less than -180'
-              )
-            }
-            return true
-          }),
-      ],
-    ]),
-    query('limit')
-      .default(50)
-      .isNumeric()
-      .custom((value) => {
-        if (value && value > 200) {
-          throw new Error('limit cannot be greater than 200')
+    query('envelope')
+      .optional()
+      .custom((values) => {
+        const cords = values.split(',')
+        if (cords.length !== 4) {
+          throw new Error('Invalid number of coordinates')
         }
-        if (value && value < 1) {
-          throw new Error('limit cannot be less than 1')
+        if (
+          Math.min(cords[0], cords[2]) < -90 ||
+          Math.max(cords[0], cords[2]) > 90
+        ) {
+          throw new Error(
+            'Latitude value cannot be greater than 90 or less than -90'
+          )
+        }
+        if (
+          Math.min(cords[1], cords[3]) < -180 ||
+          Math.max(cords[1], cords[3]) > 180
+        ) {
+          throw new Error(
+            'Longitude value cannot be greater than 180 or less than -180'
+          )
         }
         return true
       }),
-    query('after').default(getDateYesterday()).isDate(),
-    query('before').default('3000-12-31').isDate(),
-    query('exludedIds').optional().isArray(),
-    //TODO: validation for integer values
   ]
 }
 //return yesterdays date as yyyy-mm-dd
-const getDateYesterday = () => {
-  const yesterday = ((d) => new Date(d.setDate(d.getDate() - 1)))(new Date())
-    .toISOString()
-    .slice(0, 10)
-  return yesterday
-}
+
 module.exports = {
-  eventQueryValidation,
+  placeQueryValidation,
   errorHandler,
   userFromToken,
   sessionFrom,

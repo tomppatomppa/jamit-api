@@ -4,7 +4,7 @@ const app = require('../app')
 const request = supertest
 
 describe('GET /api/bookmarks', () => {
-  test('return status 200', async () => {
-    await request(app).get('/api/bookmarks').expect(200)
+  test('return status 401 unauthorized', async () => {
+    await request(app).get('/api/bookmarks').expect(401)
   })
 })
