@@ -4,9 +4,10 @@ const { Op, literal } = require('sequelize')
 const sequelize = require('sequelize')
 const { placeQueryValidation } = require('../util/middleware')
 const { validationResult } = require('express-validator')
-//TODO: validations
+
 router.get('/', placeQueryValidation(), async (req, res) => {
   const errors = validationResult(req)
+
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() })
   }

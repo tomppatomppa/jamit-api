@@ -1,11 +1,18 @@
 const router = require('express').Router()
 
+const { validationResult } = require('express-validator')
 const { Event, Place } = require('../models/index')
 
-const { userFromToken } = require('../util/middleware')
+const { userFromToken, eventQueryValidation } = require('../util/middleware')
 
-router.get('/', async (req, res) => {
-  const { offset, place_id } = req.query
+router.get('/', eventQueryValidation(), async (req, res) => {
+  const errors = validationResult(req)
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() })
+  }
+
+  const { offset, place_id, limit } = req.query
 
   let where = {}
 
@@ -15,7 +22,6 @@ router.get('/', async (req, res) => {
     }
   }
 
-  const limit = 3
   const allEvents = await Event.findAndCountAll({
     where,
     offset: offset,

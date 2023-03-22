@@ -31,42 +31,10 @@ describe('POST api/reset', () => {
       expect(response.status).toBe(400)
     })
   })
-  describe('If username doesnt exist throw error', () => {
+  describe('If username does not exist', () => {
     test("provided username doesn't exist in the database", async () => {
       const response = await api.post('/api/reset').send(user)
       expect(response.body.error).toEqual('User does not exist')
     })
   })
-
-  // describe('If username exists', () => {
-  //   beforeAll(async () => {
-  //     await User.destroy({
-  //       where: {
-  //         id: user.id,
-  //       },
-  //     })
-  //     const password_hash = await bcrypt.hash(user.password, 10)
-  //     const createdUser = await User.create({
-  //       ...user,
-  //       password_hash: password_hash,
-  //     })
-  //   })
-  //   describe('resetting password', () => {
-  //     test('provided username exists in the database', async () => {
-  //       const response = await api
-  //         .post('/api/reset')
-  //         .send({ username: user.username })
-  //       // expect(response).toEqual(
-  //       //   `Recovery instructions sent to ${user.username}.
-  //       //     Remember to check you junk folder!`
-  //       // )
-  //       expect(response).toEqual({})
-  //     })
-  //   })
-  //   afterAll(async () => {
-  //     await User.destroy({
-  //       where: { id: user.id },
-  //     })
-  //   })
-  // })
 })

@@ -8,7 +8,6 @@ const nodemailer = require('nodemailer')
 const { SECRET, SENDER, SENDER_PASSWORD } = require('../util/config')
 const { sessionFrom } = require('../util/middleware')
 
-//TODO: improve
 router.post('/', async (req, res) => {
   const { username } = req.body
 
@@ -63,8 +62,18 @@ router.put('/', async (req, res) => {
 
   if (!token || !password) {
     return res.status(400).json({
-      error: 'Please provide the code sent your email, and a new password',
+      error:
+        'Please provide the code sent your email along with your new password',
     })
+  }
+
+  try {
+    jwt.verify(token, SECRET)
+  } catch (e) {
+    if (e instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ error: e })
+    }
+    return res.status(400).json({ error: e })
   }
 
   const session = await sessionFrom(token)

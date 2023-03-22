@@ -84,6 +84,12 @@ function placeQueryValidation() {
     query('after').default(getDateYesterday()).isDate(),
   ]
 }
+function eventQueryValidation() {
+  return [
+    query('limit').default(3).isInt({ min: 1, max: 50 }),
+    query('offset').default(0).isInt(),
+  ]
+}
 //return yesterdays date as yyyy-mm-dd
 const getDateYesterday = () => {
   const today = new Date()
@@ -99,4 +105,5 @@ module.exports = {
   errorHandler,
   userFromToken,
   sessionFrom,
+  eventQueryValidation,
 }

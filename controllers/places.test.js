@@ -30,6 +30,12 @@ describe('Places endpoints', () => {
       expect(body.errors[0].msg).toEqual('Invalid value')
       expect(body.errors[0].param).toEqual('after')
     })
+    test('Valid ISO date format <after>', async () => {
+      const { body } = await request(app)
+        .get('/api/places')
+        .query({ after: '2023-03-03' })
+      expect(body.errors).not.toBeDefined()
+    })
     test('Empty after query defaults to yesterdays date', async () => {
       const { body } = await request(app)
         .get('/api/places')

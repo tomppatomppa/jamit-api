@@ -5,13 +5,13 @@ const Place = require('./place')
 const Bookmark = require('./bookmark')
 
 User.hasMany(Event)
+User.hasMany(Bookmark, { foreignKey: 'user_id' })
 Bookmark.belongsTo(User, { foreignKey: 'user_id' })
 Bookmark.belongsTo(Event, {
   foreignKey: 'item_reference',
   constraints: false,
   as: 'events',
 })
-User.hasMany(Bookmark, { foreignKey: 'user_id' })
 
 Event.belongsTo(User)
 Event.belongsTo(Place)

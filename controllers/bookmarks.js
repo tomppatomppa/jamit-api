@@ -34,6 +34,7 @@ router.post('/', async (req, res) => {
   }
 
   await Bookmark.create({ ...req.body, user_id: req.user.id })
+
   res.status(200).json('Bookmark added')
 })
 
