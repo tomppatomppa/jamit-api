@@ -10,15 +10,24 @@ router.get('/', placeQueryValidation(), async (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() })
   }
-  if (!req.query.envelope) {
+
+  const { after, envelope } = req.query
+
+  if (!envelope) {
     const allPlaces = await Place.findAll({
       include: {
         model: Event,
         as: 'data',
+        where: {
+          start_date: {
+            [Op.gte]: after,
+          },
+        },
       },
     })
     return res.status(200).json(allPlaces)
   }
+
   //Find all places inside the given envelope,
   const places = await Place.findAll({
     attributes: [
@@ -35,7 +44,7 @@ router.get('/', placeQueryValidation(), async (req, res) => {
         attributes: [],
         where: {
           start_date: {
-            [Op.gte]: '2023-03-01',
+            [Op.gte]: after,
           },
         },
         required: false,
@@ -43,7 +52,7 @@ router.get('/', placeQueryValidation(), async (req, res) => {
     ],
     where: literal(`ST_Intersects(
       "place"."location",
-      ST_MakeEnvelope(${req.query.envelope}, 4326)
+      ST_MakeEnvelope(${envelope}, 4326)
     )`),
 
     group: ['place.id'],

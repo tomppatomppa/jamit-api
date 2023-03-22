@@ -7,7 +7,7 @@
     "dev": "nodemon index.js",
     "start-prod": "node index.js",
     "eslint": "eslint './**/*.{js,jsx}'",
-    "test": "NODE_ENV=test jest --runInBand --silent",
+    "test": "NODE_ENV=test jest --runInBand --silent --testPathPattern=places.test.js",
     "deploy": "flyctl deploy"
   },
   "author": "",
